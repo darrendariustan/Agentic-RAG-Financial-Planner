@@ -1,6 +1,6 @@
-# Alex Agent Architecture
+# Multi-Agent Production Architecture
 
-This document illustrates how the AI agents in the Alex platform collaborate to provide comprehensive financial planning and portfolio analysis.
+This document illustrates how the AI agents in the Agentic RAG platform collaborate to provide comprehensive financial planning and portfolio analysis.
 
 ## Agent Collaboration Overview
 

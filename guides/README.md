@@ -1,8 +1,8 @@
-# Alex Architecture Overview (S3 Vectors Version)
+# Agentic RAG Architecture Overview (S3 Vectors Version)
 
 ## System Architecture
 
-The Alex platform uses a modern serverless architecture on AWS, combining AI services with cost-effective infrastructure:
+The platform uses a modern serverless architecture on AWS, combining AI services with cost-effective infrastructure:
 
 ```mermaid
 graph TB

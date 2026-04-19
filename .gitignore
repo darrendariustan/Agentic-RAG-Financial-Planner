@@ -236,3 +236,10 @@ backend/**/*_lambda.zip
 permissions/*.json
 guides/agent_architecture.md
 guides/architecture.md
+AGENTS.md
+CLAUDE.md
+gameplan.md
+test_payload.json
+
+# other irrelevant folders
+assets/
