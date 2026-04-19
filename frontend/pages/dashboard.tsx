@@ -384,289 +384,288 @@ export default function Dashboard() {
   return (
     <>
       <Head>
-        <title>Dashboard - Alex AI Financial Advisor</title>
+        <title>Dashboard - Darren AI Financial Advisor</title>
       </Head>
       <Layout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-dark mb-8">Dashboard</h1>
-
-        {loading ? (
-          // Loading skeleton
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-lg shadow p-6">
-                  <Skeleton className="h-4 w-3/4 mx-auto mb-3" />
-                  <Skeleton className="h-8 w-1/2 mx-auto" />
-                </div>
-              ))}
-            </div>
-            <SkeletonCard />
-            <SkeletonCard />
-          </div>
-        ) : (
-          <>
-            {/* Portfolio Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">Total Portfolio Value</h3>
-            <p className="text-3xl font-bold text-primary">
-              ${totalValue % 1 === 0
-                ? totalValue.toLocaleString('en-US')
-                : totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">Number of Accounts</h3>
-            <p className="text-3xl font-bold text-dark">{accounts.length}</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2 text-center">Asset Allocation</h3>
-            {pieChartData.length > 0 ? (
-              <div className="h-24">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieChartData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={20}
-                      outerRadius={40}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {pieChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500">No positions yet</p>
-            )}
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">Last Analysis</h3>
-            <p className="text-3xl font-bold text-dark">
-              {lastAnalysisDate ? new Date(lastAnalysisDate).toLocaleDateString() : "Never"}
-            </p>
-          </div>
-        </div>
-
-        {/* User Settings Section */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold text-dark mb-6">User Settings</h2>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <h1 className="text-3xl font-bold text-dark mb-8">Dashboard</h1>
 
           {loading ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : error && !error.includes("success") ? (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-              <p className="text-red-600">{error}</p>
-            </div>
-          ) : error && error.includes("success") ? (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-              <p className="text-green-600">✅ {error}</p>
-            </div>
-          ) : null}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Basic Info */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Display Name
-              </label>
-              <input
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Target Retirement Income (Annual)
-              </label>
-              <input
-                type="text"
-                value={targetRetirementIncome ? targetRetirementIncome.toLocaleString('en-US') : ''}
-                onChange={(e) => {
-                  // Remove commas and parse as number
-                  const value = e.target.value.replace(/,/g, '');
-                  const num = parseInt(value) || 0;
-                  if (!isNaN(num)) {
-                    setTargetRetirementIncome(num);
-                  }
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            {/* Retirement Slider */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Years Until Retirement: {yearsUntilRetirement}
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="50"
-                value={yearsUntilRetirement}
-                onChange={(e) => setYearsUntilRetirement(Number(e.target.value))}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>0</span>
-                <span>10</span>
-                <span>20</span>
-                <span>30</span>
-                <span>40</span>
-                <span>50</span>
+            // Loading skeleton
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="bg-white rounded-lg shadow p-6">
+                    <Skeleton className="h-4 w-3/4 mx-auto mb-3" />
+                    <Skeleton className="h-8 w-1/2 mx-auto" />
+                  </div>
+                ))}
               </div>
+              <SkeletonCard />
+              <SkeletonCard />
             </div>
-
-            {/* Target Allocations */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Target Asset Class Allocation</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm text-gray-600">Equity: {equityTarget}%</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={equityTarget}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      setEquityTarget(val);
-                      setFixedIncomeTarget(100 - val);
-                    }}
-                    className="w-full"
-                  />
+          ) : (
+            <>
+              {/* Portfolio Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white rounded-lg shadow p-6 text-center">
+                  <h3 className="text-sm font-medium text-gray-500 mb-3">Total Portfolio Value</h3>
+                  <p className="text-3xl font-bold text-primary">
+                    ${totalValue % 1 === 0
+                      ? totalValue.toLocaleString('en-US')
+                      : totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
                 </div>
-                <div>
-                  <label className="text-sm text-gray-600">Fixed Income: {fixedIncomeTarget}%</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={fixedIncomeTarget}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      setFixedIncomeTarget(val);
-                      setEquityTarget(100 - val);
-                    }}
-                    className="w-full"
-                  />
+
+                <div className="bg-white rounded-lg shadow p-6 text-center">
+                  <h3 className="text-sm font-medium text-gray-500 mb-3">Number of Accounts</h3>
+                  <p className="text-3xl font-bold text-dark">{accounts.length}</p>
+                </div>
+
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-sm font-medium text-gray-500 mb-2 text-center">Asset Allocation</h3>
+                  {pieChartData.length > 0 ? (
+                    <div className="h-24">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={pieChartData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={20}
+                            outerRadius={40}
+                            paddingAngle={2}
+                            dataKey="value"
+                          >
+                            {pieChartData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">No positions yet</p>
+                  )}
+                </div>
+
+                <div className="bg-white rounded-lg shadow p-6 text-center">
+                  <h3 className="text-sm font-medium text-gray-500 mb-3">Last Analysis</h3>
+                  <p className="text-3xl font-bold text-dark">
+                    {lastAnalysisDate ? new Date(lastAnalysisDate).toLocaleDateString() : "Never"}
+                  </p>
                 </div>
               </div>
 
-              {/* Mini pie chart for asset allocation */}
-              <div className="mt-4 h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Equity', value: equityTarget },
-                        { name: 'Fixed Income', value: fixedIncomeTarget }
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={40}
-                      dataKey="value"
-                    >
-                      <Cell fill="#209DD7" />
-                      <Cell fill="#753991" />
-                    </Pie>
-                    <Tooltip formatter={(value) => `${value}%`} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+              {/* User Settings Section */}
+              <div className="bg-white rounded-lg shadow p-6 mb-8">
+                <h2 className="text-xl font-semibold text-dark mb-6">User Settings</h2>
 
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Target Regional Allocation</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm text-gray-600">North America: {northAmericaTarget}%</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={northAmericaTarget}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      setNorthAmericaTarget(val);
-                      setInternationalTarget(100 - val);
-                    }}
-                    className="w-full"
-                  />
+                {loading ? (
+                  <p className="text-gray-500">Loading...</p>
+                ) : error && !error.includes("success") ? (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <p className="text-red-600">{error}</p>
+                  </div>
+                ) : error && error.includes("success") ? (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <p className="text-green-600">✅ {error}</p>
+                  </div>
+                ) : null}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Basic Info */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Display Name
+                    </label>
+                    <input
+                      type="text"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Target Retirement Income (Annual)
+                    </label>
+                    <input
+                      type="text"
+                      value={targetRetirementIncome ? targetRetirementIncome.toLocaleString('en-US') : ''}
+                      onChange={(e) => {
+                        // Remove commas and parse as number
+                        const value = e.target.value.replace(/,/g, '');
+                        const num = parseInt(value) || 0;
+                        if (!isNaN(num)) {
+                          setTargetRetirementIncome(num);
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+
+                  {/* Retirement Slider */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Years Until Retirement: {yearsUntilRetirement}
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="50"
+                      value={yearsUntilRetirement}
+                      onChange={(e) => setYearsUntilRetirement(Number(e.target.value))}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>0</span>
+                      <span>10</span>
+                      <span>20</span>
+                      <span>30</span>
+                      <span>40</span>
+                      <span>50</span>
+                    </div>
+                  </div>
+
+                  {/* Target Allocations */}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">Target Asset Class Allocation</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm text-gray-600">Equity: {equityTarget}%</label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={equityTarget}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setEquityTarget(val);
+                            setFixedIncomeTarget(100 - val);
+                          }}
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-600">Fixed Income: {fixedIncomeTarget}%</label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={fixedIncomeTarget}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setFixedIncomeTarget(val);
+                            setEquityTarget(100 - val);
+                          }}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Mini pie chart for asset allocation */}
+                    <div className="mt-4 h-32">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'Equity', value: equityTarget },
+                              { name: 'Fixed Income', value: fixedIncomeTarget }
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={40}
+                            dataKey="value"
+                          >
+                            <Cell fill="#209DD7" />
+                            <Cell fill="#753991" />
+                          </Pie>
+                          <Tooltip formatter={(value) => `${value}%`} />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">Target Regional Allocation</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm text-gray-600">North America: {northAmericaTarget}%</label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={northAmericaTarget}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setNorthAmericaTarget(val);
+                            setInternationalTarget(100 - val);
+                          }}
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-600">International: {internationalTarget}%</label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={internationalTarget}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setInternationalTarget(val);
+                            setNorthAmericaTarget(100 - val);
+                          }}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Mini pie chart for regional allocation */}
+                    <div className="mt-4 h-32">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'North America', value: northAmericaTarget },
+                              { name: 'International', value: internationalTarget }
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={40}
+                            dataKey="value"
+                          >
+                            <Cell fill="#FFB707" />
+                            <Cell fill="#062147" />
+                          </Pie>
+                          <Tooltip formatter={(value) => `${value}%`} />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm text-gray-600">International: {internationalTarget}%</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={internationalTarget}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      setInternationalTarget(val);
-                      setNorthAmericaTarget(100 - val);
-                    }}
-                    className="w-full"
-                  />
+
+                <div className="mt-6">
+                  <button
+                    onClick={handleSaveSettings}
+                    disabled={saving || loading}
+                    className={`px-6 py-2 rounded-lg font-medium transition-colors ${saving || loading
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-primary text-white hover:bg-blue-600'
+                      }`}
+                  >
+                    {saving ? 'Saving...' : 'Save Settings'}
+                  </button>
                 </div>
               </div>
-
-              {/* Mini pie chart for regional allocation */}
-              <div className="mt-4 h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'North America', value: northAmericaTarget },
-                        { name: 'International', value: internationalTarget }
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={40}
-                      dataKey="value"
-                    >
-                      <Cell fill="#FFB707" />
-                      <Cell fill="#062147" />
-                    </Pie>
-                    <Tooltip formatter={(value) => `${value}%`} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <button
-              onClick={handleSaveSettings}
-              disabled={saving || loading}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                saving || loading
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-primary text-white hover:bg-blue-600'
-              }`}
-            >
-              {saving ? 'Saving...' : 'Save Settings'}
-            </button>
-          </div>
+            </>
+          )}
         </div>
-          </>
-        )}
-      </div>
       </Layout>
     </>
   );

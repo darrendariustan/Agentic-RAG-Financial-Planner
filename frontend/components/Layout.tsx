@@ -32,7 +32,7 @@ export default function Layout({ children }: LayoutProps) {
               <div className="flex items-center gap-8">
                 <Link href="/dashboard" className="flex items-center">
                   <h1 className="text-xl font-bold text-dark">
-                    Alex <span className="text-primary">AI Financial Advisor</span>
+                    Darren <span className="text-primary">AI Financial Advisor</span>
                   </h1>
                 </Link>
 
@@ -40,41 +40,37 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="hidden md:flex items-center gap-6">
                   <Link
                     href="/dashboard"
-                    className={`text-sm font-medium transition-colors ${
-                      isActive("/dashboard")
+                    className={`text-sm font-medium transition-colors ${isActive("/dashboard")
                         ? "text-primary"
                         : "text-gray-600 hover:text-primary"
-                    }`}
+                      }`}
                   >
                     Dashboard
                   </Link>
                   <Link
                     href="/accounts"
-                    className={`text-sm font-medium transition-colors ${
-                      isActive("/accounts")
+                    className={`text-sm font-medium transition-colors ${isActive("/accounts")
                         ? "text-primary"
                         : "text-gray-600 hover:text-primary"
-                    }`}
+                      }`}
                   >
                     Accounts
                   </Link>
                   <Link
                     href="/advisor-team"
-                    className={`text-sm font-medium transition-colors ${
-                      isActive("/advisor-team")
+                    className={`text-sm font-medium transition-colors ${isActive("/advisor-team")
                         ? "text-primary"
                         : "text-gray-600 hover:text-primary"
-                    }`}
+                      }`}
                   >
                     Advisor Team
                   </Link>
                   <Link
                     href="/analysis"
-                    className={`text-sm font-medium transition-colors ${
-                      isActive("/analysis")
+                    className={`text-sm font-medium transition-colors ${isActive("/analysis")
                         ? "text-primary"
                         : "text-gray-600 hover:text-primary"
-                    }`}
+                      }`}
                   >
                     Analysis
                   </Link>
@@ -94,41 +90,37 @@ export default function Layout({ children }: LayoutProps) {
             <div className="md:hidden flex items-center gap-4 pb-3">
               <Link
                 href="/dashboard"
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/dashboard")
+                className={`text-sm font-medium transition-colors ${isActive("/dashboard")
                     ? "text-primary"
                     : "text-gray-600 hover:text-primary"
-                }`}
+                  }`}
               >
                 Dashboard
               </Link>
               <Link
                 href="/accounts"
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/accounts")
+                className={`text-sm font-medium transition-colors ${isActive("/accounts")
                     ? "text-primary"
                     : "text-gray-600 hover:text-primary"
-                }`}
+                  }`}
               >
                 Accounts
               </Link>
               <Link
                 href="/advisor-team"
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/advisor-team")
+                className={`text-sm font-medium transition-colors ${isActive("/advisor-team")
                     ? "text-primary"
                     : "text-gray-600 hover:text-primary"
-                }`}
+                  }`}
               >
                 Advisor Team
               </Link>
               <Link
                 href="/analysis"
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/analysis")
+                className={`text-sm font-medium transition-colors ${isActive("/analysis")
                     ? "text-primary"
                     : "text-gray-600 hover:text-primary"
-                }`}
+                  }`}
               >
                 Analysis
               </Link>
@@ -157,7 +149,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
             <div className="mt-4 pt-4 border-t border-gray-200">
               <p className="text-xs text-gray-500 text-center">
-                © 2025 Alex AI Financial Advisor. Powered by AI agents and built with care.
+                © 2026 Darren AI Financial Advisor. Powered by AI agents and built with care.
               </p>
             </div>
           </div>

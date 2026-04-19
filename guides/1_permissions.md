@@ -1,8 +1,8 @@
-# Building Alex: Part 1 - AWS Permissions Setup
+# Building Agentic RAG Financial Planner: Part 1 - AWS Permissions Setup
 
-Welcome to Project Alex - the Agentic Learning Equities eXplainer! 
+Welcome to this project: Building an Agentic RAG Financial Planner! 
 
-Alex is an AI-powered personal financial planner that will help users manage their investment portfolios and plan for retirement. Throughout this course, we'll build a complete AI system using AWS services.
+Let's just call this project ALEX. ALEX is an AI-powered personal financial planner that will help users manage their investment portfolios and plan for retirement. Throughout this course, we'll build a complete AI system using AWS services.
 
 ## What is Alex?
 
@@ -22,7 +22,7 @@ Then after answering any questions, say exactly which guide you're on, and any i
 
 ## Architecture Overview
 
-Here's what you'll be building across all the guides:
+Here's what is built across all the guides:
 
 ```mermaid
 graph TB
@@ -86,7 +86,7 @@ First, we need to create proper IAM permissions for the Alex project. We'll crea
 
 ⚠️ **Security Note**: We're using the root user only for IAM setup. For all other tasks, we'll use our IAM user.
 
-### 1.2 Create S3 Vectors Policy
+### 1.2.1 Create S3 Vectors Policy
 
 Since S3 Vectors is a new service (as of 2025), we need to create a custom policy for it:
 
@@ -116,6 +116,99 @@ Since S3 Vectors is a new service (as of 2025), we need to create a custom polic
 8. For **Description**, enter: `Full access to S3 Vectors for Alex project`
 9. Click **Create policy**
 
+### 1.2.2 Create Custom RDS Policy
+
+1. In the AWS Console, navigate to **IAM** (Identity and Access Management)
+2. In the left sidebar, click **Policies**
+3. Click **Create policy**
+4. Click the **JSON** tab
+5. Replace the default content with:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "RDSPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "rds:CreateDBCluster",
+                "rds:CreateDBInstance",
+                "rds:CreateDBSubnetGroup",
+                "rds:DeleteDBCluster",
+                "rds:DeleteDBInstance",
+                "rds:DeleteDBSubnetGroup",
+                "rds:DescribeDBClusters",
+                "rds:DescribeDBInstances",
+                "rds:DescribeDBSubnetGroups",
+                "rds:DescribeGlobalClusters",
+                "rds:ModifyDBCluster",
+                "rds:ModifyDBInstance",
+                "rds:ModifyDBSubnetGroup",
+                "rds:AddTagsToResource",
+                "rds:ListTagsForResource",
+                "rds:RemoveTagsFromResource",
+                "rds-data:ExecuteStatement",
+                "rds-data:BatchExecuteStatement",
+                "rds-data:BeginTransaction",
+                "rds-data:CommitTransaction",
+                "rds-data:RollbackTransaction"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "EC2Permissions",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeVpcs",
+                "ec2:DescribeVpcAttribute",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeSecurityGroups",
+                "ec2:CreateSecurityGroup",
+                "ec2:DeleteSecurityGroup",
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:AuthorizeSecurityGroupEgress",
+                "ec2:RevokeSecurityGroupIngress",
+                "ec2:RevokeSecurityGroupEgress",
+                "ec2:CreateTags",
+                "ec2:DescribeTags"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "SecretsManagerPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:CreateSecret",
+                "secretsmanager:DeleteSecret",
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:UpdateSecret"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "KMSPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "kms:CreateGrant",
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+6. Click **Next: Tags**, then **Next: Review**
+7. For **Policy name**, enter: `AlexCustomRDSAccess`
+8. For **Description**, enter: `Custom policy for RDS access for Alex project`
+9. Click **Create policy**
+
 ### 1.3 Create the AlexAccess Group
 
 1. Still in IAM, click **User groups** in the left sidebar
@@ -126,6 +219,7 @@ Since S3 Vectors is a new service (as of 2025), we need to create a custom polic
    - `AmazonBedrockFullAccess` (AWS managed policy - for AI model access)
    - `CloudWatchEventsFullAccess` (AWS managed policy - includes EventBridge)
    - `AlexS3VectorsAccess` (the custom policy you just created)
+   - `IAMFullAccess` (AWS managed policy)
    
    Note: We already have Lambda, S3, CloudWatch, and API Gateway permissions from other groups.
 

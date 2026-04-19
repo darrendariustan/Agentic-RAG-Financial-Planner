@@ -9,7 +9,11 @@ import sys
 import subprocess
 import signal
 import time
+import threading
 from pathlib import Path
+
+# Windows compatibility for npm command
+NPM_CMD = "npm.cmd" if os.name == "nt" else "npm"
 
 # Track subprocesses for cleanup
 processes = []
@@ -19,10 +23,22 @@ def cleanup(signum=None, frame=None):
     print("\n🛑 Shutting down services...")
     for proc in processes:
         try:
-            proc.terminate()
-            proc.wait(timeout=5)
-        except:
-            proc.kill()
+            if os.name == "nt":
+                # On Windows, shell=True means proc.terminate() only kills cmd.exe,
+                # not the actual child process (node, uvicorn). Use taskkill /T to
+                # kill the entire process tree.
+                subprocess.run(
+                    ["taskkill", "/PID", str(proc.pid), "/F", "/T"],
+                    capture_output=True
+                )
+            else:
+                proc.terminate()
+                proc.wait(timeout=5)
+        except Exception:
+            try:
+                proc.kill()
+            except Exception:
+                pass
     sys.exit(0)
 
 # Register cleanup handlers
@@ -43,7 +59,7 @@ def check_requirements():
 
     # Check npm
     try:
-        result = subprocess.run(["npm", "--version"], capture_output=True, text=True)
+        result = subprocess.run([NPM_CMD, "--version"], capture_output=True, text=True)
         npm_version = result.stdout.strip()
         checks.append(f"✅ npm: {npm_version}")
     except FileNotFoundError:
@@ -138,46 +154,35 @@ def start_frontend():
     # Check if dependencies are installed
     if not (frontend_dir / "node_modules").exists():
         print("  Installing frontend dependencies...")
-        subprocess.run(["npm", "install"], cwd=frontend_dir, check=True)
+        subprocess.run([NPM_CMD, "install"], cwd=frontend_dir, check=True)
 
     # Start the frontend
+    cmd = "npm run dev" if os.name == "nt" else [NPM_CMD, "run", "dev"]
     proc = subprocess.Popen(
-        ["npm", "run", "dev"],
+        cmd,
         cwd=frontend_dir,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,  # Combine stderr with stdout
         text=True,
-        bufsize=1
+        bufsize=1,
+        shell=(os.name == "nt")
     )
     processes.append(proc)
 
     # Wait for frontend to start
     print("  Waiting for frontend to start...")
     import httpx
-    import select
 
-    started = False
     for i in range(30):  # 30 second timeout
-        # Check for any output from the process using non-blocking read
-        if proc.stdout:
-            ready, _, _ = select.select([proc.stdout], [], [], 0)
-            if ready:
-                line = proc.stdout.readline()
-                if line:
-                    print(f"    Frontend: {line.strip()}")
-                    # NextJS dev server prints "Ready" when it's ready
-                    if "ready" in line.lower() or "compiled" in line.lower() or "started server" in line.lower():
-                        started = True
-
-        # Also try to connect
-        if started or i > 5:  # Start checking after 5 seconds or when we see "ready"
+        # Start checking after 5 seconds
+        if i > 5:  
             try:
                 response = httpx.get("http://localhost:3000", timeout=1)
                 print("  ✅ Frontend running at http://localhost:3000")
                 return proc
             except httpx.ConnectError:
                 pass  # Server not ready yet
-            except:
+            except Exception:
                 # Any other response means server is up
                 print("  ✅ Frontend running at http://localhost:3000")
                 return proc
@@ -200,22 +205,26 @@ def monitor_processes():
     print("="*60 + "\n")
 
     # Monitor processes
+    def stream_logs(p):
+        try:
+            for l in iter(p.stdout.readline, ''):
+                if l:
+                    print(f"[LOG] {l.strip()}", flush=True)
+        except Exception:
+            pass
+
+    for proc in processes:
+        threading.Thread(target=stream_logs, args=(proc,), daemon=True).start()
+
     while True:
         for proc in processes:
             # Check if process is still running
             if proc.poll() is not None:
-                print(f"\n⚠️  A process has stopped unexpectedly!")
+                cmd_str = proc.args if isinstance(proc.args, str) else " ".join(proc.args)
+                print(f"\n⚠️  A process has stopped unexpectedly! Command: '{cmd_str}' | Exit code: {proc.poll()}")
                 cleanup()
 
-            # Read any available output
-            try:
-                line = proc.stdout.readline()
-                if line:
-                    print(f"[LOG] {line.strip()}")
-            except:
-                pass
-
-        time.sleep(0.1)
+        time.sleep(1)
 
 def main():
     """Main entry point"""

@@ -81,12 +81,10 @@ def package_lambda():
         if zip_path.exists():
             zip_path.unlink()
         
-        # Create new zip
+        # Create new zip using Python (cross-platform, no need for 'zip' CLI)
         print(f"Creating zip file: {zip_path}")
-        run_command(
-            ["zip", "-r", str(zip_path), "."],
-            cwd=str(package_dir)
-        )
+        archive_base = str(zip_path).removesuffix(".zip")
+        shutil.make_archive(archive_base, "zip", root_dir=str(package_dir))
         
         # Get file size
         size_mb = zip_path.stat().st_size / (1024 * 1024)

@@ -231,3 +231,8 @@ backend/**/*_lambda.zip
 # But do include the scheduler
 !backend/scheduler/lambda_function.zip
 !frontend/lib
+
+# the guides folder
+permissions/*.json
+guides/agent_architecture.md
+guides/architecture.md

@@ -259,23 +259,23 @@ export default function Analysis() {
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkBreaks]}
           components={{
-            h1: ({children}) => <h1 className="text-3xl font-bold mb-4 text-gray-900">{children}</h1>,
-            h2: ({children}) => <h2 className="text-2xl font-semibold mb-3 text-gray-800 mt-6">{children}</h2>,
-            h3: ({children}) => <h3 className="text-xl font-medium mb-2 text-gray-700 mt-4">{children}</h3>,
-            ul: ({children}) => <ul className="list-disc ml-6 mb-4 space-y-1">{children}</ul>,
-            ol: ({children}) => <ol className="list-decimal ml-6 mb-4 space-y-1">{children}</ol>,
-            li: ({children}) => <li className="text-gray-700">{children}</li>,
-            p: ({children}) => <p className="mb-4 text-gray-700 leading-relaxed">{children}</p>,
-            table: ({children}) => (
+            h1: ({ children }) => <h1 className="text-3xl font-bold mb-4 text-gray-900">{children}</h1>,
+            h2: ({ children }) => <h2 className="text-2xl font-semibold mb-3 text-gray-800 mt-6">{children}</h2>,
+            h3: ({ children }) => <h3 className="text-xl font-medium mb-2 text-gray-700 mt-4">{children}</h3>,
+            ul: ({ children }) => <ul className="list-disc ml-6 mb-4 space-y-1">{children}</ul>,
+            ol: ({ children }) => <ol className="list-decimal ml-6 mb-4 space-y-1">{children}</ol>,
+            li: ({ children }) => <li className="text-gray-700">{children}</li>,
+            p: ({ children }) => <p className="mb-4 text-gray-700 leading-relaxed">{children}</p>,
+            table: ({ children }) => (
               <div className="overflow-x-auto mb-6">
                 <table className="w-full border-collapse">{children}</table>
               </div>
             ),
-            thead: ({children}) => <thead className="bg-gray-100">{children}</thead>,
-            th: ({children}) => <th className="p-3 text-left font-semibold border border-gray-300">{children}</th>,
-            td: ({children}) => <td className="p-3 border border-gray-300">{children}</td>,
-            strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
-            blockquote: ({children}) => (
+            thead: ({ children }) => <thead className="bg-gray-100">{children}</thead>,
+            th: ({ children }) => <th className="p-3 text-left font-semibold border border-gray-300">{children}</th>,
+            td: ({ children }) => <td className="p-3 border border-gray-300">{children}</td>,
+            strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
+            blockquote: ({ children }) => (
               <blockquote className="border-l-4 border-primary pl-4 my-4 italic text-gray-600">
                 {children}
               </blockquote>
@@ -389,7 +389,7 @@ export default function Analysis() {
                       height={60}
                     />
                     <YAxis
-                      tickFormatter={(value) => `$${(value/1000).toFixed(0)}k`}
+                      tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                     />
                     <Tooltip formatter={(value: number) => `$${value.toLocaleString('en-US')}`} />
                     <Bar dataKey="value">
@@ -403,7 +403,7 @@ export default function Analysis() {
                   <BarChart data={chartData.data}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-                    <YAxis tickFormatter={(value) => `$${(value/1000).toFixed(0)}k`} />
+                    <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
                     <Tooltip formatter={(value: number) => `$${value.toLocaleString('en-US')}`} />
                     <Bar dataKey="value" fill={chartData.color || COLORS[0]} />
                   </BarChart>
@@ -412,7 +412,7 @@ export default function Analysis() {
                   <LineChart data={chartData.data}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey={chartData.xKey || "year"} />
-                    <YAxis tickFormatter={(value) => `$${(value/1000).toFixed(0)}k`} />
+                    <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
                     <Tooltip formatter={(value: number) => `$${value.toLocaleString('en-US')}`} />
                     <Line type="monotone" dataKey="value" stroke={COLORS[0]} strokeWidth={2} />
                   </LineChart>
@@ -463,12 +463,12 @@ export default function Analysis() {
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkBreaks]}
                 components={{
-                  h2: ({children}) => <h2 className="text-2xl font-semibold mb-3 text-gray-800">{children}</h2>,
-                  h3: ({children}) => <h3 className="text-xl font-medium mb-2 text-gray-700">{children}</h3>,
-                  p: ({children}) => <p className="text-gray-700 leading-relaxed mb-4">{children}</p>,
-                  strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
-                  ul: ({children}) => <ul className="list-disc ml-6 mt-2 space-y-1">{children}</ul>,
-                  li: ({children}) => <li className="text-gray-700">{children}</li>,
+                  h2: ({ children }) => <h2 className="text-2xl font-semibold mb-3 text-gray-800">{children}</h2>,
+                  h3: ({ children }) => <h3 className="text-xl font-medium mb-2 text-gray-700">{children}</h3>,
+                  p: ({ children }) => <p className="text-gray-700 leading-relaxed mb-4">{children}</p>,
+                  strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                  ul: ({ children }) => <ul className="list-disc ml-6 mt-2 space-y-1">{children}</ul>,
+                  li: ({ children }) => <li className="text-gray-700">{children}</li>,
                 }}
               >
                 {retirementAnalysis}
@@ -484,75 +484,72 @@ export default function Analysis() {
   return (
     <>
       <Head>
-        <title>Analysis - Alex AI Financial Advisor</title>
+        <title>Analysis - Darren AI Financial Advisor</title>
       </Head>
       <Layout>
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow px-8 py-6 mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-dark mb-2">Portfolio Analysis Results</h1>
-                <p className="text-gray-600">
-                  Completed on {formatDate(job.created_at)}
-                </p>
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Header */}
+            <div className="bg-white rounded-lg shadow px-8 py-6 mb-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-dark mb-2">Portfolio Analysis Results</h1>
+                  <p className="text-gray-600">
+                    Completed on {formatDate(job.created_at)}
+                  </p>
+                </div>
+                <button
+                  onClick={() => router.push('/advisor-team')}
+                  className="px-6 py-3 bg-ai-accent text-white rounded-lg hover:bg-purple-700 font-semibold"
+                >
+                  New Analysis
+                </button>
               </div>
-              <button
-                onClick={() => router.push('/advisor-team')}
-                className="px-6 py-3 bg-ai-accent text-white rounded-lg hover:bg-purple-700 font-semibold"
-              >
-                New Analysis
-              </button>
             </div>
-          </div>
 
-          {/* Tabs */}
-          <div className="bg-white rounded-lg shadow mb-8">
-            <div className="border-b border-gray-200">
-              <nav className="flex -mb-px">
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`py-3 px-8 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === 'overview'
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  📊 Overview
-                </button>
-                <button
-                  onClick={() => setActiveTab('charts')}
-                  className={`py-3 px-8 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === 'charts'
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  📈 Charts
-                </button>
-                <button
-                  onClick={() => setActiveTab('retirement')}
-                  className={`py-3 px-8 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === 'retirement'
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  🎯 Retirement Projection
-                </button>
-              </nav>
+            {/* Tabs */}
+            <div className="bg-white rounded-lg shadow mb-8">
+              <div className="border-b border-gray-200">
+                <nav className="flex -mb-px">
+                  <button
+                    onClick={() => setActiveTab('overview')}
+                    className={`py-3 px-8 border-b-2 font-medium text-sm transition-colors ${activeTab === 'overview'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                  >
+                    📊 Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('charts')}
+                    className={`py-3 px-8 border-b-2 font-medium text-sm transition-colors ${activeTab === 'charts'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                  >
+                    📈 Charts
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('retirement')}
+                    className={`py-3 px-8 border-b-2 font-medium text-sm transition-colors ${activeTab === 'retirement'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                  >
+                    🎯 Retirement Projection
+                  </button>
+                </nav>
+              </div>
             </div>
-          </div>
 
-          {/* Tab Content */}
-          <div className="bg-white rounded-lg shadow px-8 py-6">
-            {activeTab === 'overview' && renderOverview()}
-            {activeTab === 'charts' && renderCharts()}
-            {activeTab === 'retirement' && renderRetirement()}
+            {/* Tab Content */}
+            <div className="bg-white rounded-lg shadow px-8 py-6">
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'charts' && renderCharts()}
+              {activeTab === 'retirement' && renderRetirement()}
+            </div>
           </div>
         </div>
-      </div>
       </Layout>
     </>
   );

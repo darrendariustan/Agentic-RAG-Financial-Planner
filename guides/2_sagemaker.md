@@ -53,7 +53,7 @@ aws_region = "us-east-1"  # Use your DEFAULT_AWS_REGION from .env
 
 ## Step 2: Deploy with Terraform
 
-Now let's deploy the SageMaker infrastructure. With the HuggingFace approach, there's no need to prepare model artifacts - the model will be downloaded automatically from HuggingFace Hub!
+Now let's deploy the SageMaker infrastructure. With the HuggingFace approach, there's no need to prepare model artifacts - the model will be downloaded automatically from HuggingFace Hub! (Other alternatives: S3 Artifacts, Custom Docker, Sagemaker Jumpstart - all too complex)
 
 ```bash
 # Initialize Terraform (creates local state file)
@@ -122,9 +122,33 @@ aws sagemaker-runtime invoke-endpoint --endpoint-name "alex-embedding-endpoint" 
 cat output.json
 ```
 
-You'll see a JSON array with 384 floating-point numbers - that's the text "vectorize me" converted into a vector embedding!
+You'll see a JSON array with 384 floating-point numbers - that's the text "vectorize me" converted into a vector embedding! (Inside code is {"inputs": "vectorize me"})
 
 **Note**: The first request to a serverless endpoint can take 10-60 seconds (cold start). Subsequent requests will be much faster.
+
+## Mechanism Under the Hood for vectorize_me.json:
+
+1. Request Transmission (Local → AWS)
+The AWS CLI reads your local vectorize_me.json file. It sends a signed HTTPS POST request to the SageMaker Runtime API in your AWS region, containing the string "vectorize me" in the request body.
+
+2. Endpoint Routing & Provisioning
+SageMaker receives the request and lookups your Serverless Endpoint.
+
+Provisioning: If the endpoint hasn't been used recently, SageMaker performs a "cold start"—spinning up a lightweight compute instance (3GB RAM) and loading the Hugging Face Inference Container.
+
+Configuration: The container is configured (via your Terraform code) with the environment variable HF_MODEL_ID = sentence-transformers/all-MiniLM-L6-v2.
+
+3. Model Execution (Inside the Container)
+The Hugging Face container receives the JSON input and passes it to the pre-loaded ML model:
+
+Tokenization: The model converts "vectorize me" into a sequence of numerical IDs that represent sub-word units.
+Deep Learning Inference: These IDs pass through the 384-hidden-layer Transformer architecture.
+
+Embedding Generation: The final layer compresses the semantic meaning into a single, high-dimensional vector. For this specific model (all-MiniLM-L6-v2), that is exactly 384 floating-point numbers.
+
+4. Response Delivery (AWS → Local)
+The container sends that 384-number array back as a JSON response. The AWS CLI receives it, pipes the metadata to your console, and writes the raw JSON array into output.json.
+
 
 ## Cost Analysis
 
@@ -279,6 +303,22 @@ aws cloudwatch get-metric-statistics --namespace "AWS/SageMaker" --metric-name "
 ```
 
 This shows how SageMaker automatically tracks model usage - essential for MLOps!
+
+## Sequence of Terraform Apply
+
+When you run terraform apply, Terraform processes the files in this sequence to handle your scheduler_enabled = false parameter:
+
+1. `terraform.tfvars` (The Input): Terraform reads this first to get your specific values. It assigns false to the scheduler_enabled variable.
+
+2. `variables.tf` (The Definition): Terraform checks this file to ensure the variable scheduler_enabled is actually declared and that the value provided (false) matches the expected type (boolean).
+
+3. `main.tf` (The Logic): Terraform uses the variable to decide what to build. It searches for resources that use var.scheduler_enabled. For example:
+ - count = var.scheduler_enabled ? 1 : 0
+ - Because the value is false, the "count" becomes 0, and Terraform skips creating those resources (like the EventBridge scheduler).
+
+4. `outputs.tf` (The Report): After applying, Terraform evaluates the outputs. If an output depends on that variable, it will display the status (e.g., "Scheduler Status: Disabled").
+
+In short: `.tfvars` sets the value $\rightarrow$ `variables.tf` defines the name $\rightarrow$ `main.tf` executes the logic $\rightarrow$ `outputs.tf` summarizes the result.
 
 ## Troubleshooting
 

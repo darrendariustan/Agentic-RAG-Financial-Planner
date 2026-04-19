@@ -8,7 +8,7 @@ export default function Document() {
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="description" content="Alex AI Financial Advisor - Your intelligent portfolio management assistant" />
+        <meta name="description" content="Darren AI Financial Advisor - Your intelligent portfolio management assistant" />
         <meta name="theme-color" content="#209DD7" />
       </Head>
       <body className="antialiased">

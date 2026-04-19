@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
 """
-Package all Lambda functions using Docker for AWS compatibility.
+Package Lambda functions using Docker for AWS compatibility.
 Runs each agent's package_docker.py script.
+
+Usage:
+    uv run package_docker.py              # Package ALL agents
+    uv run package_docker.py tagger       # Package only tagger
+    uv run package_docker.py reporter charter  # Package reporter and charter
+    uv run package_docker.py --list       # List available agents
 """
 
 import os
 import sys
 import subprocess
+import argparse
 from pathlib import Path
+
+ALL_AGENTS = ["tagger", "reporter", "charter", "retirement", "planner"]
 
 
 def run_packaging(agent_name):
@@ -50,15 +59,66 @@ def run_packaging(agent_name):
 
 
 def main():
-    """Package all Lambda functions."""
+    """Package Lambda functions - all or individually."""
+    parser = argparse.ArgumentParser(
+        description="Package Lambda functions using Docker",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  uv run package_docker.py                    # Package ALL agents
+  uv run package_docker.py tagger             # Package only tagger
+  uv run package_docker.py reporter charter   # Package reporter and charter
+  uv run package_docker.py --list             # List available agents
+        """,
+    )
+    parser.add_argument(
+        "agents",
+        nargs="*",
+        help=f"Agent(s) to package. If not specified, packages all. Choices: {', '.join(ALL_AGENTS)}",
+    )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        dest="list_agents",
+        help="List all available agents",
+    )
+    args = parser.parse_args()
+
+    if args.list_agents:
+        print("Available agents:")
+        for agent in ALL_AGENTS:
+            agent_dir = Path(__file__).parent / agent
+            has_script = (agent_dir / "package_docker.py").exists()
+            has_zip = list(agent_dir.glob("*.zip"))
+            status = "📦" if has_zip else "  "
+            script_status = "✅" if has_script else "❌"
+            print(f"  {status} {agent.ljust(12)} {script_status} package_docker.py", end="")
+            if has_zip:
+                size_mb = has_zip[0].stat().st_size / (1024 * 1024)
+                print(f"  ({has_zip[0].name}, {size_mb:.1f} MB)", end="")
+            print()
+        return 0
+
+    # Determine which agents to package
+    if args.agents:
+        # Validate agent names
+        agents_to_package = []
+        for agent in args.agents:
+            agent_lower = agent.lower()
+            if agent_lower not in ALL_AGENTS:
+                print(f"❌ Unknown agent: '{agent}'. Available: {', '.join(ALL_AGENTS)}")
+                return 1
+            agents_to_package.append(agent_lower)
+    else:
+        agents_to_package = ALL_AGENTS
+
+    label = ", ".join(a.upper() for a in agents_to_package)
     print("=" * 60)
-    print("PACKAGING ALL LAMBDA FUNCTIONS")
+    print(f"PACKAGING LAMBDA FUNCTIONS: {label}")
     print("=" * 60)
 
-    agents = ["tagger", "reporter", "charter", "retirement", "planner"]
     results = {}
-
-    for agent in agents:
+    for agent in agents_to_package:
         success = run_packaging(agent)
         results[agent] = success
 
@@ -77,7 +137,7 @@ def main():
     print(f"Packaged: {success_count}/{total_count}")
 
     if success_count == total_count:
-        print("\n✅ ALL LAMBDA FUNCTIONS PACKAGED SUCCESSFULLY!")
+        print("\n✅ ALL REQUESTED LAMBDA FUNCTIONS PACKAGED SUCCESSFULLY!")
         print("\nNext steps:")
         print("1. Deploy infrastructure: cd terraform/6_agents && terraform apply")
         print("2. Deploy Lambda functions: cd backend && uv run deploy_all_lambdas.py")

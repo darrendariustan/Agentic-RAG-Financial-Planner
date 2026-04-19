@@ -5,7 +5,7 @@ export default function Custom404() {
   return (
     <>
       <Head>
-        <title>404 - Page Not Found | Alex AI Financial Advisor</title>
+        <title>404 - Page Not Found | Darren AI Financial Advisor</title>
       </Head>
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">

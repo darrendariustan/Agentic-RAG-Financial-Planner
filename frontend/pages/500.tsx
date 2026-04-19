@@ -5,7 +5,7 @@ export default function Custom500() {
   return (
     <>
       <Head>
-        <title>500 - Server Error | Alex AI Financial Advisor</title>
+        <title>500 - Server Error | Darren AI Financial Advisor</title>
       </Head>
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">
