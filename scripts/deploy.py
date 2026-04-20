@@ -343,6 +343,12 @@ def main():
     # Get the API URL from terraform outputs
     api_url = outputs["api_gateway_url"]["value"]
 
+    # Use custom domain if available, otherwise use raw API Gateway URL
+    custom_domain = "https://darren-agentic-financial-advisor.click"
+    if custom_domain:
+        print(f"  ✨ Using custom domain for API: {custom_domain}")
+        api_url = custom_domain
+
     # Build frontend with the production API URL
     build_frontend(api_url)
 
@@ -360,7 +366,7 @@ def main():
         print("  You'll need to manually invalidate the cache")
         cloudfront_id = None
     else:
-        cloudfront_id = dist_id_output
+        cloudfront_id = dist_id_output.strip()
 
     # Upload frontend
     bucket_name = outputs["s3_bucket_name"]["value"]
@@ -381,10 +387,12 @@ def main():
     print("\n" + "=" * 50)
     print("✅ Deployment complete!")
     print(f"\n🌐 Your application is available at:")
-    print(f"   {outputs['cloudfront_url']['value']}")
+    display_url = custom_domain if custom_domain else outputs['cloudfront_url']['value']
+    print(f"   {display_url}")
     print(f"\n📊 Monitor your Lambda function at:")
     print(f"   AWS Console > Lambda > {outputs['lambda_function_name']['value']}")
     print("\n⏳ Note: CloudFront distribution may take 5-10 minutes to fully propagate")
+
 
 
 if __name__ == "__main__":

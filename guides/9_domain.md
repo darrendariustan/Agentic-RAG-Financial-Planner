@@ -285,7 +285,7 @@ Your Clerk authentication also needs to know about the new domain:
 1.  **Verify**: In Clerk, click the blue **Verify configuration** button. It will turn from "Unverified" to "Verified" (you might need to wait a few minutes and click it again if DNS is slow).
 2.  **Get New Keys**: Production uses entirely different keys. In the Clerk Dashboard (still in Production mode), go to **API Keys** and copy your new `Publishable Key` and `Secret Key`.
 3.  **Update `.env` Files**: Replace the old Development Clerk keys with your new Production keys in both:
-    *   `frontend/.env.local`
+    *   `frontend/.env.production.local` # Skip `env.local` as for local testing
     *   root `.env`
 4.  **Update Terraform Variables**: In `terraform/7_frontend/terraform.tfvars`, update your JWKS URL and Issuer to use your new custom domain instead of the `.dev` one.
     *   `clerk_issuer = "https://clerk.darren-agentic-financial-advisor.click"`
