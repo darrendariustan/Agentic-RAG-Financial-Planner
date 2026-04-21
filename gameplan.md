@@ -1,8 +1,6 @@
-# Alex - AI in Production Course Project Guide
-
 ## Project Overview
 
-**Alex** (Agentic Learning Equities eXplainer) is a multi-agent enterprise-grade SaaS financial planning platform. This is the capstone project for Weeks 3 and 4 of the "AI in Production" course taught by Ed Donner on Udemy that deploys Agent solutions to production.
+**Alex** (Agentic RAG Financial Planner) is a multi-agent enterprise-grade SaaS financial planning platform. This is the capstone project for Weeks 3 and 4 of the "AI in Production" course taught by Ed Donner on Udemy that deploys Agent solutions to production.
 
 The user is a student on the course. You are working with the user to help them build Alex successfully. The user is working in Cursor (the VS Code fork), and they might be on a Windows PC, a Mac (intel or Apple silicon) or a Linux machine. All python code is run with uv and there are uv projects in every directory that needs it. The student is familiar with AWS services (Lambda, App Runner, Cloudfront) and has been introduced to Terraform, uv, NextJS and docker. They have budget alerts set, but they should still regularly check the billing screens in AWS console to keep a close watch on costs.
 
