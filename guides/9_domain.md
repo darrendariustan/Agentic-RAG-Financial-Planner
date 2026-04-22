@@ -350,74 +350,208 @@ nslookup darren-agentic-financial-advisor.click
 
 ---
 
-## Step 7: (Optional) Persist in Terraform
+## Step 7: Persist State Changes in Terraform (Must if Clerk configs change to production environment)
 
-If you want your domain configuration managed as Infrastructure as Code (so `terraform apply` handles it), you can add the following to your `terraform/7_frontend/main.tf`. **This is optional** — the manual console steps above are sufficient for the course.
+Since running `terraform apply` will overwrite any manual console changes, you should persist your custom domain config in Terraform. Update **three files** in `terraform/7_frontend/`:
 
-Add these resources after the existing `aws_cloudfront_distribution` block:
+### 7.1 Add variables to `variables.tf`
+
+Add these two variables at the end of `variables.tf`:
 
 ```hcl
-# --- Custom Domain Resources (Optional) ---
+variable "custom_domain" {
+  description = "Custom domain name (e.g., darren-agentic-financial-advisor.click)"
+  type        = string
+  default     = ""
+}
 
-# Variables to add to variables.tf:
-# variable "custom_domain" {
-#   description = "Custom domain name (e.g., darren-agentic-financial-advisor)"
-#   type        = string
-#   default     = ""
-# }
-#
-# variable "acm_certificate_arn" {
-#   description = "ACM certificate ARN (must be in us-east-1)"
-#   type        = string
-#   default     = ""
-# }
-
-# Route 53 Hosted Zone lookup (only if domain was registered via Route 53)
-# data "aws_route53_zone" "main" {
-#   count = var.custom_domain != "" ? 1 : 0
-#   name  = var.custom_domain
-# }
-
-# A Record: root domain → CloudFront
-# resource "aws_route53_record" "root" {
-#   count   = var.custom_domain != "" ? 1 : 0
-#   zone_id = data.aws_route53_zone.main[0].zone_id
-#   name    = var.custom_domain
-#   type    = "A"
-#
-#   alias {
-#     name                   = aws_cloudfront_distribution.main.domain_name
-#     zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
-#     evaluate_target_health = false
-#   }
-# }
-
-# A Record: www subdomain → CloudFront
-# resource "aws_route53_record" "www" {
-#   count   = var.custom_domain != "" ? 1 : 0
-#   zone_id = data.aws_route53_zone.main[0].zone_id
-#   name    = "www.${var.custom_domain}"
-#   type    = "A"
-#
-#   alias {
-#     name                   = aws_cloudfront_distribution.main.domain_name
-#     zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
-#     evaluate_target_health = false
-#   }
-# }
+variable "acm_certificate_arn" {
+  description = "ACM certificate ARN (must be in us-east-1)"
+  type        = string
+  default     = ""
+}
 ```
 
-You would also need to update the `aws_cloudfront_distribution.main` block to include:
-```hcl
-  # Add inside the cloudfront_distribution resource:
-  aliases = var.custom_domain != "" ? [var.custom_domain, "www.${var.custom_domain}"] : []
+### 7.2 Set values in `terraform.tfvars`
 
+Add the actual values:
+
+```hcl
+custom_domain       = "darren-agentic-financial-advisor.click"
+acm_certificate_arn = "arn:aws:acm:us-east-1:864981739490:certificate/1a55bec5-4af8-4650-a9bd-c09cac1b6249"
+```
+
+### 7.3 Update CloudFront distribution in `main.tf`
+
+Find the `resource "aws_cloudfront_distribution" "main"` block and make two changes:
+
+**a) Add `aliases`** line (after `comment = "Alex Financial Advisor Frontend"`):
+```hcl
+  aliases = var.custom_domain != "" ? [var.custom_domain, "www.${var.custom_domain}"] : []
+```
+
+**b) Replace the `viewer_certificate` block** (near the end of the CloudFront resource):
+```hcl
   viewer_certificate {
     cloudfront_default_certificate = var.custom_domain == ""
     acm_certificate_arn            = var.custom_domain != "" ? var.acm_certificate_arn : null
     ssl_support_method             = var.custom_domain != "" ? "sni-only" : null
     minimum_protocol_version       = var.custom_domain != "" ? "TLSv1.2_2021" : null
   }
+```
+
+### 7.4 Update CORS origins in `main.tf`
+
+Find the `CORS_ORIGINS` line inside the `aws_lambda_function "api"` resource and replace it with:
+```hcl
+      CORS_ORIGINS = var.custom_domain != "" ? "http://localhost:3000,https://${aws_cloudfront_distribution.main.domain_name},https://${var.custom_domain},https://www.${var.custom_domain}" : "http://localhost:3000,https://${aws_cloudfront_distribution.main.domain_name}"
+```
+
+### 7.5 Route 53 DNS records in `main.tf` (if you already created A records manually)
+
+Since you created the A records manually in Step 4, Terraform doesn't know about them yet. You must **import** them into state — otherwise `terraform apply` will error on duplicate records.
+
+#### Fix IAM permissions first
+
+Your `aiengineer` user lacks Route 53 permissions. Fastest fix — attach the managed policy to the `AlexAccess` group:
+
+```powershell
+aws iam attach-group-policy --group-name AlexAccess --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess
+```
+
+#### Get your Hosted Zone ID
+
+```powershell
+aws route53 list-hosted-zones --query "HostedZones[?Name=='darren-agentic-financial-advisor.click.'].Id" --output text
+```
+
+Output will look like `/hostedzone/Z1234ABCDEF`. **Copy just the ID portion** (e.g. `Z1234ABCDEF`):
+```
+/hostedzone/Z034387037OYH1O3O0QPI
+```
+
+#### Uncomment the blocks in `main.tf`
+
+The code is already at the bottom of `main.tf` — uncomment all three blocks (`data "aws_route53_zone"`, `resource "aws_route53_record" "root"`, `resource "aws_route53_record" "www"`).
+
+#### Import the existing A records (Terraform 1.5+)
+
+The best way to import is using **import blocks** directly in your `main.tf`. Add this to the bottom of the file (replace `ZONE_ID` with your actual ID):
+
+```hcl
+import {
+  to = aws_route53_record.root[0]
+  id = "ZONE_ID_darren-agentic-financial-advisor.click_A"
+}
+
+import {
+  to = aws_route53_record.www[0]
+  id = "ZONE_ID_www.darren-agentic-financial-advisor.click_A"
+}
+```
+
+#### Verify and Apply
+
+```powershell
+cd terraform/7_frontend
+terraform plan
+```
+
+Terraform will recognize the import blocks and show: **"Plan: 2 to import, 0 to add, 0 to change, 0 to destroy"**. 
+```
+Apply complete! Resources: 2 imported, 0 added, 2 changed, 0 destroyed.       
+
+Outputs:
+
+api_gateway_url = "https://rfez3grs71.execute-api.us-east-1.amazonaws.com"    
+cloudfront_url = "https://d2xacuj8kx2e3l.cloudfront.net"
+lambda_function_name = "alex-api"
+s3_bucket_name = "alex-frontend-864981739490"
+setup_instructions = <<EOT
+
+✅ Frontend & API infrastructure deployed successfully!
+
+CloudFront URL: https://d2xacuj8kx2e3l.cloudfront.net
+API Gateway: https://rfez3grs71.execute-api.us-east-1.amazonaws.com
+S3 Bucket: alex-frontend-864981739490
+Lambda Function: alex-api
+
+Next steps:
+
+1. If you deployed manually (not using scripts/deploy.py):
+   a. Build and deploy the frontend:
+      cd frontend
+      npm run build
+      aws s3 sync out/ s3://alex-frontend-864981739490/ --delete
+
+   b. Invalidate CloudFront cache:
+      aws cloudfront create-invalidation \
+        --distribution-id EK6IDEP723KK1 \
+        --paths "/*"
+
+2. Test the deployment:
+   - Visit: https://d2xacuj8kx2e3l.cloudfront.net
+   - Sign in with Clerk
+   - Check API calls in Network tab
+
+3. Monitor in AWS Console:
+   - CloudWatch Logs: /aws/lambda/alex-api
+   - API Gateway metrics
+   - CloudFront metrics
+
+To destroy: cd scripts && uv run destroy.py
+
+EOT
+```
+
+If it looks correct, run:
+```powershell
+terraform apply
+```
+
+Then run your normal deploy:
+
+```powershell
+cd ../../scripts
+uv run deploy.py
+```
+
+The HCL blocks to add/uncomment:
+
+```hcl
+# Route 53 Hosted Zone lookup
+data "aws_route53_zone" "main" {
+  count = var.custom_domain != "" ? 1 : 0
+  name  = var.custom_domain
+}
+
+# A Record: root domain → CloudFront
+resource "aws_route53_record" "root" {
+  count   = var.custom_domain != "" ? 1 : 0
+  zone_id = data.aws_route53_zone.main[0].zone_id
+  name    = var.custom_domain
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.main.domain_name
+    zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# A Record: www subdomain → CloudFront
+resource "aws_route53_record" "www" {
+  count   = var.custom_domain != "" ? 1 : 0
+  zone_id = data.aws_route53_zone.main[0].zone_id
+  name    = "www.${var.custom_domain}"
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.main.domain_name
+    zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
 ```
 
 ---

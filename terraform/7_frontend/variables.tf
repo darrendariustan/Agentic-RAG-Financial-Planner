@@ -15,3 +15,15 @@ variable "clerk_issuer" {
   type        = string
   default     = ""  # Not actually used but kept for backwards compatibility
 }
+
+variable "custom_domain" {
+  description = "Custom domain name (e.g., darren-agentic-financial-advisor.click)"
+  type        = string
+  default     = ""
+}
+
+variable "acm_certificate_arn" {
+  description = "ACM certificate ARN (must be in us-east-1)"
+  type        = string
+  default     = ""
+}

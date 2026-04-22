@@ -218,7 +218,7 @@ resource "aws_lambda_function" "api" {
       CLERK_ISSUER   = var.clerk_issuer
 
       # CORS configuration
-      CORS_ORIGINS = "http://localhost:3000,https://${aws_cloudfront_distribution.main.domain_name}"
+      CORS_ORIGINS = var.custom_domain != "" ? "http://localhost:3000,https://${aws_cloudfront_distribution.main.domain_name},https://${var.custom_domain},https://www.${var.custom_domain}" : "http://localhost:3000,https://${aws_cloudfront_distribution.main.domain_name}"
     }
   }
 
@@ -298,6 +298,7 @@ resource "aws_cloudfront_distribution" "main" {
   default_root_object = "index.html"
   tags                = local.common_tags
   comment             = "Alex Financial Advisor Frontend"
+  aliases             = var.custom_domain != "" ? [var.custom_domain, "www.${var.custom_domain}"] : []
 
   # S3 origin for frontend
   origin {
@@ -385,7 +386,58 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    cloudfront_default_certificate = var.custom_domain == ""
+    acm_certificate_arn            = var.custom_domain != "" ? var.acm_certificate_arn : null
+    ssl_support_method             = var.custom_domain != "" ? "sni-only" : null
+    minimum_protocol_version       = var.custom_domain != "" ? "TLSv1.2_2021" : null
   }
 }
 
+# --- Custom Domain Route 53 Resources (Optional) ---
+# Uncomment these if you want Terraform to manage your DNS records.
+# If you already created A records manually in Route 53 (Step 4), you would
+# need to `terraform import` them first, or delete them from the console
+# before uncommenting.
+
+# Route 53 Hosted Zone lookup
+data "aws_route53_zone" "main" {
+  count = var.custom_domain != "" ? 1 : 0
+  name  = var.custom_domain
+}
+
+# A Record: root domain → CloudFront
+resource "aws_route53_record" "root" {
+  count   = var.custom_domain != "" ? 1 : 0
+  zone_id = data.aws_route53_zone.main[0].zone_id
+  name    = var.custom_domain
+  type    = "A"
+  alias {
+    name                   = aws_cloudfront_distribution.main.domain_name
+    zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# A Record: www subdomain → CloudFront
+resource "aws_route53_record" "www" {
+  count   = var.custom_domain != "" ? 1 : 0
+  zone_id = data.aws_route53_zone.main[0].zone_id
+  name    = "www.${var.custom_domain}"
+  type    = "A"
+  alias {
+    name                   = aws_cloudfront_distribution.main.domain_name
+    zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# --- Import Blocks for existing records ---
+import {
+  to = aws_route53_record.root[0]
+  id = "Z034387037OYH1O3O0QPI_darren-agentic-financial-advisor.click_A"
+}
+
+import {
+  to = aws_route53_record.www[0]
+  id = "Z034387037OYH1O3O0QPI_www.darren-agentic-financial-advisor.click_A"
+}
